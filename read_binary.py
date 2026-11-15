@@ -23,10 +23,10 @@ with open("2026-11-09-13-18.svlog", "rb") as file:
                 #br = file.read(2)
                 # The next two return packet length
                 packet_length = int.from_bytes(file.read(2), 'little')
-                # print(packet_length, "bytes")
+                print(packet_length, "bytes")
                 # The packet ID (defines parameter type, IMU vs ATOF etc)
                 packet_id = int.from_bytes(file.read(2), 'little')
-                # print("Packet ID:", packet_id)
+                print("Packet ID:", packet_id)
                 # Source Device ID (u8)
                 src_device_id = file.read(1)
                 # Destination Device ID (u8)
@@ -42,7 +42,7 @@ with open("2026-11-09-13-18.svlog", "rb") as file:
                     # print(payload)
 
                 if packet_id == 504:
-                    # print("IMU data")
+                    print("IMU data")
                     # pull IMU vectors
                     vecx, vecy, vecz, d1, d2, d3, utc_msec, pwr_up_msec = struct.unpack('<ffffffQI', payload)
 
@@ -54,10 +54,12 @@ with open("2026-11-09-13-18.svlog", "rb") as file:
                     # write to csv
                     f_imu.write(f"{utc_msec}, {pwr_up_msec}, {vecx}, {vecy}, {vecz}\n")
                 if packet_id == 3009:
-                    print(payload[0:30])
+                    print("Channel data")
+                    # print(payload[0:30])
                     # test_me = int.from_bytes(payload[0:30], 'little')
                     # print(test_me)
                 if packet_id == 3010:
+                    print("Summary Data")
                     u_resv = int.from_bytes(payload[0:4], 'little')
                     range_start_m = struct.unpack('<f', payload[4:8])[0]
                     range_end_m = struct.unpack('<f', payload[8:12])[0]
@@ -72,13 +74,13 @@ with open("2026-11-09-13-18.svlog", "rb") as file:
                     n_range_bins = int.from_bytes(payload[62:64], 'little')
                     # print(n_range_bins, "range bins")
                     samples_per_range_bin = int.from_bytes(payload[64:66], 'little')
-                    print(samples_per_range_bin, "samples per range bin")
+                    # print(samples_per_range_bin, "samples per range bin")
                     pwr_up_msec = int.from_bytes(payload[68:72], 'little')
                     utc_msec = int.from_bytes(payload[72:80], 'little')
                     # print(pwr_up_msec, utc_msec)
                     
                 if packet_id == 3012:
-                    # print("ATOF data")
+                    print("ATOF data")
                     prec_bytes = 40 # number of bytes preceding the actual atof data
                     pwr_up_msec, utc_msec, listening_sec, sos_mps, ping_number, ping_hz, pulse_sec, d1, num_points, d2 = struct.unpack('<IQffIIfIHH', payload[0:prec_bytes])
                     atof = payload[prec_bytes:packet_length]
